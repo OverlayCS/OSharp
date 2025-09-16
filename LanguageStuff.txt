@@ -1,0 +1,86 @@
+function Prefix = void (or return type)
+
+function layout = void FunctionName(name: type, age: type)
+				  {
+				       Console.Message(name + age);
+				  }
+				  
+				  int FunctioName(age: type)
+				  {
+					  Console.Message(age.ToUsableString())
+					  return age++;
+				  }
+				  
+				  
+variable Layout:
+	<type> VariableName; // the defualt value is just the empty version of those types like 0 for numbers and "" for string
+	<type> VariableName: <defualt value>; // that is the defualt value for that type
+	
+Prebuild Function:
+	//Console Function
+	- Console.Message(message); //prints the inputed message to the console / app
+	- Console.ReadConsoleInput(); // returns the last inputed thing on the console to a string
+	- Console.OpenFile(FilePath); // returns the file class that can be used to read or write to a file
+	- Console.CloseFile(CloseAllFiles: (boolean)); //closes the last open file by the program if inputed true it will close all opend file
+	
+	//Type Functions
+	- <int/ float/ long/ double/ short>.ToUsableString(); //turn the numbers into a string that is usable
+	- <string/ char>.ToUsableNum();
+	- <list/ array>.GetIndexOf(object); // find the first instance of that objects that returns the instance of it in the list or array
+	- <list/ array>.AddElement(object); // add the new element to the end of the list / array
+	- <list/ array>.RemoveElement(object, RemoveAllInstances: (boolean)); // remove the first instance of that object if RemoveAllInstances is True its removes all the instances of that object
+	
+	//File Functions
+	- <OpenedFile>.Write(data); //write the content to the opened file
+	- <OpenedFile>.Read(); //returns the content of the opened file as a string
+	- <OpenedFile>.Delete(); //deletes the opened file before deleting closes file to not get any errors
+	- <OpenedFile>.ChangePath(newPath); //moves the opened file to the new path
+	- <OpenedFile>.Tell(); //returns files current file path
+	- <OpenedFile>.IsActive(); //is the file being read from or writen to is a boolean
+	- <OpenedFile>.ReadLines(); //returns file content as a list of strings
+	- <OpenedFile>.WriteLines(ListOfStrings: List<string>); // writes a list of strings to a file without needing a for or foreach loop
+	- <OpenedFile>.IsWritable(); //returns weather a file can be writen to or not
+	
+	//Networking Functions
+	- NetworkServer.Start(port: int); //starts a new network servers on a port
+	- NetworkServer.Listen(); //uses the current started severs and listens for data on that port
+	- NetworkServer.Send(ip_address: string, broadcast: boolean); // if broadcast is true ip_address can be null as it will send it to all clients (can only be called on server application)
+	- NetworkClient.Connect(ip_address: string, port: int)); //connects to an networking server on that ip and that port returns error if no server found
+	- NetworkClient.Recive(); // returns a byte array of the data send from the server 
+	- NetworkingUtils.DecodeMessage(Data: string); // returns the decodes utf-8 message into a string to use be used
+	
+	
+	
+Fundimental Code Blocks:
+    //for loop
+	for(int index in <list / array>)
+	{
+	    //use the index for the list / array
+	}
+	
+	//foreach loop
+	foreach(<type> object in <list/ array>)
+	{
+	    //use each element from the list/ array
+	}
+	
+	//if statement
+	if(object <operator> object)
+	{
+		//returns true if equal false if not if false it calls the else block
+	}
+	else
+	{
+	  // called if if statmenet is false
+	}
+	
+	
+Prebuild Operators:
+	- + //plus
+	- - // minus
+	- * // Multiplatcation
+	- / //divition
+	- // //int divition
+	- ++ // adds 1 to an int
+	- -- // removes 1 from an int
+	
