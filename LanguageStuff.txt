@@ -1,86 +1,206 @@
-function Prefix = void (or return type)
+==========================
+   MyLanguage Reference
+==========================
 
-function layout = void FunctionName(name: type, age: type)
-				  {
-				       Console.Message(name + age);
-				  }
-				  
-				  int FunctioName(age: type)
-				  {
-					  Console.Message(age.ToUsableString())
-					  return age++;
-				  }
-				  
-				  
-variable Layout:
-	<type> VariableName; // the defualt value is just the empty version of those types like 0 for numbers and "" for string
-	<type> VariableName: <defualt value>; // that is the defualt value for that type
-	
-Prebuild Function:
-	//Console Function
-	- Console.Message(message); //prints the inputed message to the console / app
-	- Console.ReadConsoleInput(); // returns the last inputed thing on the console to a string
-	- Console.OpenFile(FilePath); // returns the file class that can be used to read or write to a file
-	- Console.CloseFile(CloseAllFiles: (boolean)); //closes the last open file by the program if inputed true it will close all opend file
-	
-	//Type Functions
-	- <int/ float/ long/ double/ short>.ToUsableString(); //turn the numbers into a string that is usable
-	- <string/ char>.ToUsableNum();
-	- <list/ array>.GetIndexOf(object); // find the first instance of that objects that returns the instance of it in the list or array
-	- <list/ array>.AddElement(object); // add the new element to the end of the list / array
-	- <list/ array>.RemoveElement(object, RemoveAllInstances: (boolean)); // remove the first instance of that object if RemoveAllInstances is True its removes all the instances of that object
-	
-	//File Functions
-	- <OpenedFile>.Write(data); //write the content to the opened file
-	- <OpenedFile>.Read(); //returns the content of the opened file as a string
-	- <OpenedFile>.Delete(); //deletes the opened file before deleting closes file to not get any errors
-	- <OpenedFile>.ChangePath(newPath); //moves the opened file to the new path
-	- <OpenedFile>.Tell(); //returns files current file path
-	- <OpenedFile>.IsActive(); //is the file being read from or writen to is a boolean
-	- <OpenedFile>.ReadLines(); //returns file content as a list of strings
-	- <OpenedFile>.WriteLines(ListOfStrings: List<string>); // writes a list of strings to a file without needing a for or foreach loop
-	- <OpenedFile>.IsWritable(); //returns weather a file can be writen to or not
-	
-	//Networking Functions
-	- NetworkServer.Start(port: int); //starts a new network servers on a port
-	- NetworkServer.Listen(); //uses the current started severs and listens for data on that port
-	- NetworkServer.Send(ip_address: string, broadcast: boolean); // if broadcast is true ip_address can be null as it will send it to all clients (can only be called on server application)
-	- NetworkClient.Connect(ip_address: string, port: int)); //connects to an networking server on that ip and that port returns error if no server found
-	- NetworkClient.Recive(); // returns a byte array of the data send from the server 
-	- NetworkingUtils.DecodeMessage(Data: string); // returns the decodes utf-8 message into a string to use be used
-	
-	
-	
-Fundimental Code Blocks:
-    //for loop
-	for(int index in <list / array>)
-	{
-	    //use the index for the list / array
-	}
-	
-	//foreach loop
-	foreach(<type> object in <list/ array>)
-	{
-	    //use each element from the list/ array
-	}
-	
-	//if statement
-	if(object <operator> object)
-	{
-		//returns true if equal false if not if false it calls the else block
-	}
-	else
-	{
-	  // called if if statmenet is false
-	}
-	
-	
-Prebuild Operators:
-	- + //plus
-	- - // minus
-	- * // Multiplatcation
-	- / //divition
-	- // //int divition
-	- ++ // adds 1 to an int
-	- -- // removes 1 from an int
-	
+FUNCTIONS
+---------
+Function prefix is the return type (or 'void' if it returns nothing).
+
+Examples:
+
+    <visibility> void FunctionName(name: type, age: type)
+    {
+        Console.Message(name + age);
+    }
+
+    int FunctionName(age: type)
+    {
+        Console.Message(age.ToUsableString());
+        return age++;
+    }
+
+
+VARIABLES
+---------
+Declare variables with or without default values.
+
+    <visibility> <type> VariableName;
+        // Default initialized to type's empty value (0 for numbers, "" for strings)
+
+    <visibility> <type> VariableName = <default value>;
+        // Explicit default value
+
+ONCHANGE VARIABLES
+------------------
+Attach automatic behavior when variable value changes.
+
+    <visibility> <type> VariableName : OnChanged
+    {
+        // Code runs whenever variable changes
+    }
+
+    <visibility> <type> VariableName = <default value>, : OnChanged
+    {
+        // Code runs whenever variable changes
+    }
+
+    <visibility> <type> VariableName = <default value>, : OnChanged when (newVal <operator> <value>)
+    {
+        // Code runs only when condition is true
+    }
+
+EVENT SUBSCRIPTIONS
+-------------------
+    <variable>.OnChanged += OnChangedFunction
+    <variable>.OnChanged -= OnChangedFunction
+
+
+FUNCTION VISIBILITY
+-------------------
+    public    // Can be accessed from any class with an object reference
+    private   // Accessible only within the defining class
+    static    // Belongs to the class itself, no object needed
+    internal  // Accessible only to other internal classes
+
+
+THREADS
+-------
+Thread Types:
+    safe   // Can only access safe, managed memory
+    unsafe // Can access any memory used by the program (dangerous)
+    io     // For file I/O operations
+    net    // For networking operations
+    all    // Combines all thread types (not recommended unless necessary)
+
+Up to two thread types may be specified.
+
+Example:
+
+    // Creating a thread
+    <visibility> <threadType1> <threadType2> parallel myThread = new();
+
+    // Starting thread
+    myThread.Start()
+    {
+        // Code executed on this thread
+    };
+
+    // Subscribing to thread events
+    myThread.OnStarted()   += OnStartedFunction;
+    myThread.OnEnded()     += OnEndedFunction;
+    myThread.OnDestroyed() += OnDestroyedFunction;
+
+    // Sending data back to main thread
+    myThread.SendMain(data);
+
+    // Pausing the thread
+    myThread.End();
+
+    // Destroying the thread (must recreate to reuse)
+    myThread.Destroy();
+
+
+PREBUILT FUNCTIONS
+------------------
+
+Console:
+    Console.Message(message);                 // Prints a message to console
+    Console.ReadConsoleInput();               // Returns last user input as string
+    Console.OpenFile(filePath);               // Opens file and returns file object
+    Console.CloseFile(closeAllFiles: bool);   // Closes last opened file (or all if true)
+
+Type Functions:
+    <int/float/...>.ToUsableString();         // Converts number to usable string
+    <string/char>.ToUsableNum();              // Converts string/char to number
+    <list/array>.GetIndexOf(object);          // Finds index of first matching object
+    <list/array>.AddElement(object);          // Adds object to end of list/array
+    <list/array>.RemoveElement(object, RemoveAllInstances: bool);
+                                              // Removes first or all matching objects
+
+File Functions:
+    <OpenedFile>.Write(data);                 // Writes data to file
+    <OpenedFile>.Read();                      // Reads file as string
+    <OpenedFile>.Delete();                    // Deletes file safely
+    <OpenedFile>.ChangePath(newPath);         // Moves file to new location
+    <OpenedFile>.Tell();                      // Returns file path
+    <OpenedFile>.IsActive();                  // True if file is currently in use
+    <OpenedFile>.ReadLines();                 // Reads file as list of strings
+    <OpenedFile>.WriteLines(List<string>);    // Writes list of strings to file
+    <OpenedFile>.IsWritable();                // True if file is writable
+
+Networking Functions:
+    NetworkServer.SetNetworkType(type);       // Sets network type (UDP/TCP/KCP)
+    NetworkServer.Start(port: int);           // Starts server on given port
+    NetworkServer.Listen();                   // Listens for incoming data
+    NetworkServer.Send(ip: string, broadcast: bool);
+                                              // Sends data, broadcasts if true
+    NetworkConnector.Connect(ip: string, port: int);
+                                              // Connects to server (error if none)
+    NetworkConnector.Receive();               // Receives data as byte array
+    NetworkUtils.DecodeMessage(data);         // Decodes UTF-8 data to string
+    NetworkUtils.EncodeMessage(message);      // Encodes string to byte array
+    NetworkServer.DisconnectClient(client);   // Disconnects specified client
+    NetworkServer.Shutdown();                 // Stops server & kicks all clients
+
+
+CORE CODE BLOCKS
+----------------
+
+Loops:
+    for (int index in <list/array>)
+    {
+        // Code using index
+    }
+
+    foreach (<type> item in <list/array>)
+    {
+        // Code using each element
+    }
+
+Conditionals:
+    if (object <operator> object)
+    {
+        // Runs if true
+    }
+    else
+    {
+        // Runs if false
+    }
+
+Try / Exception Handling:
+    try
+    {
+        // Code that might throw error
+    }
+    error(exception e)
+    {
+        Console.Message(e.Message);
+    }
+    final
+    {
+        // Always runs after try or error
+    }
+
+While Loops:
+    while (condition)
+    {
+        // Runs until condition false or loop broken
+    }
+
+Breaking Loops:
+    for (int index in <list/array>)
+    {
+        if (index == 5) continue; // Skip iteration
+        if (index == 8) end;      // Exit loop
+    }
+
+
+OPERATORS
+---------
+    +   // Addition
+    -   // Subtraction
+    *   // Multiplication
+    /   // Division (float/double)
+//  // Integer division
+    ++  // Increment by 1
+    --  // Decrement by 1
