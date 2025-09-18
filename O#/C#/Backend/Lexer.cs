@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
+/*//////////
+THIS DOES NOT WORK DO NOT USE 
+//////////*/
+
 namespace OSharp.Backend
 {
     public enum TokenType
@@ -198,3 +202,4 @@ namespace OSharp.Backend
         private bool IsAtEnd() => _index >= _source.Length;
     }
 }
+
