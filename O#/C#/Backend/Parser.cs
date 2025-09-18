@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OSharp.Backend
 {
-    internal class Parser
+    public class Parser
     {
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OSharp.Runtime.Evaluation
 {
-    internal class FunctionCallEval
+    public class FunctionCallEval
     {
     }
 }

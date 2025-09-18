@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OSharp.Runtime
 {
-    internal class RuntimeCodeRunner
+    public class RuntimeCodeRunner
     {
     }
 }
