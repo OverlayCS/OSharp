@@ -2,13 +2,15 @@
    MyLanguage Reference
 ==========================
 
+this language is an interpreted language 
+
 FUNCTIONS
 ---------
 Function prefix is the return type (or 'void' if it returns nothing).
 
 Examples:
 
-    <visibility> void FunctionName(name: type, age: type)
+    <visibility> <type> FunctionName(name: type, age: type)
     {
         Console.Message(name + age);
     }
@@ -20,6 +22,37 @@ Examples:
     }
 
 
+IMPORTING FILES
+---------------
+
+use a file in the same director just by using the keyword
+	use <FileName>;
+
+or if its not inside the same directory 
+	use <Full Path To File>;
+
+or inside a os.config file you can add the 
+	{
+		IncludeDirectory: "FilePath",
+	}
+Example:
+	{
+		IncludeDirectory: "C:\Desktop\Files\" // must add \ at the end or it will throw an error on start
+	}
+
+
+LANGUAGE CONFIG FILE
+--------------------
+This is a file read on start and set up common stuff that the language can use either dont add stuff to it or keep it blank it wont be read 
+
+to Force Read It On Start Add This One Line
+
+	ConfigFile.ForceRead(<string> PathToFile); // keep blank it will look for it in the current directory
+	
+All Option For Config File
+
+	// still working on will update
+
 VARIABLES
 ---------
 Declare variables with or without default values.
@@ -29,30 +62,6 @@ Declare variables with or without default values.
 
     <visibility> <type> VariableName = <default value>;
         // Explicit default value
-
-ONCHANGE VARIABLES
-------------------
-Attach automatic behavior when variable value changes.
-
-    <visibility> <type> VariableName : OnChanged
-    {
-        // Code runs whenever variable changes
-    }
-
-    <visibility> <type> VariableName = <default value>, : OnChanged
-    {
-        // Code runs whenever variable changes
-    }
-
-    <visibility> <type> VariableName = <default value>, : OnChanged when (newVal <operator> <value>)
-    {
-        // Code runs only when condition is true
-    }
-
-EVENT SUBSCRIPTIONS
--------------------
-    <variable>.OnChanged += OnChangedFunction
-    <variable>.OnChanged -= OnChangedFunction
 
 
 FUNCTION VISIBILITY
@@ -77,7 +86,7 @@ Up to two thread types may be specified.
 Example:
 
     // Creating a thread
-    <visibility> <threadType1> <threadType2> parallel myThread = new();
+    <visibility> <threadType> <threadType> parallel myThread = new();
 
     // Starting thread
     myThread.Start()
@@ -86,9 +95,14 @@ Example:
     };
 
     // Subscribing to thread events
-    myThread.OnStarted()   += OnStartedFunction;
-    myThread.OnEnded()     += OnEndedFunction;
-    myThread.OnDestroyed() += OnDestroyedFunction;
+    myThread.OnStarted(-> FunctionThatSubscribes)   
+    myThread.OnEnded(-> FunctionThatSubscribes)     
+    myThread.OnDestroyed(-> FunctionThatSubscribes) 
+	
+	// Unsubscribing to thread events
+    myThread.OnStarted(<- FunctionThatSubscribes)   
+    myThread.OnEnded(<- FunctionThatSubscribes)     
+    myThread.OnDestroyed(<- FunctionThatSubscribes) 
 
     // Sending data back to main thread
     myThread.SendMain(data);
@@ -108,14 +122,16 @@ Console:
     Console.ReadConsoleInput();               // Returns last user input as string
     Console.OpenFile(filePath);               // Opens file and returns file object
     Console.CloseFile(closeAllFiles: bool);   // Closes last opened file (or all if true)
+	Console.SetWindowSize(<int> width, <height> height); // set the windows size
+	Console.SetCursorPosition(<int> x, <int> y); // sets the consoles cursor positionf 
 
 Type Functions:
     <int/float/...>.ToUsableString();         // Converts number to usable string
     <string/char>.ToUsableNum();              // Converts string/char to number
     <list/array>.GetIndexOf(object);          // Finds index of first matching object
     <list/array>.AddElement(object);          // Adds object to end of list/array
-    <list/array>.RemoveElement(object, RemoveAllInstances: bool);
-                                              // Removes first or all matching objects
+    <list/array>.RemoveElement(object);       // Removes first matching objects
+	<list/array>.RemoveElementAll(object);    // Removes All Instances Of That Objects
 
 File Functions:
     <OpenedFile>.Write(data);                 // Writes data to file
@@ -127,20 +143,27 @@ File Functions:
     <OpenedFile>.ReadLines();                 // Reads file as list of strings
     <OpenedFile>.WriteLines(List<string>);    // Writes list of strings to file
     <OpenedFile>.IsWritable();                // True if file is writable
+    <OpenedFile>.IsReadable();                // True if file is readable
 
 Networking Functions:
-    NetworkServer.SetNetworkType(type);       // Sets network type (UDP/TCP/KCP)
+    NetworkServer.SetNetworkType(type);       // Sets network type (UDP/TCP)
     NetworkServer.Start(port: int);           // Starts server on given port
     NetworkServer.Listen();                   // Listens for incoming data
-    NetworkServer.Send(ip: string, broadcast: bool);
-                                              // Sends data, broadcasts if true
-    NetworkConnector.Connect(ip: string, port: int);
-                                              // Connects to server (error if none)
-    NetworkConnector.Receive();               // Receives data as byte array
-    NetworkUtils.DecodeMessage(data);         // Decodes UTF-8 data to string
-    NetworkUtils.EncodeMessage(message);      // Encodes string to byte array
-    NetworkServer.DisconnectClient(client);   // Disconnects specified client
+    NetworkServer.Send(ip: string, broadcast: bool); // Sends data, broadcasts if true
+	NetworkServer.DisconnectClient(ipOfClient);   // Disconnects specified client
     NetworkServer.Shutdown();                 // Stops server & kicks all clients
+	
+    NetworkConnector.Connect(ip: string, port: int); // Connects to server (error if none)
+	NetworkConnector.OnShutdown(->ShutdownFunction); //
+    NetworkConnector.Receive();               // Receives data as byte array
+	
+    NetworkUtils.DecodeMessage(data <Array Of Bytes>);         // Decodes UTF-8 data to string
+    NetworkUtils.EncodeMessage(message);      // Encodes string to byte array
+	
+Https / Http Functions: // still bear bones still working on
+	HttpClient httpClient = new();
+	
+	byte[] response httpClient.Request(<string> Type, <string> URL, <Byte[]> data);
 
 
 CORE CODE BLOCKS
@@ -182,9 +205,9 @@ Try / Exception Handling:
     }
 
 While Loops:
-    while (condition)
+    while (condition == <true / false>)
     {
-        // Runs until condition false or loop broken
+        // Runs until condition is oposite to input or loop broken
     }
 
 Breaking Loops:
@@ -204,3 +227,10 @@ OPERATORS
     //  // Integer division
     ++  // Increment by 1
     --  // Decrement by 1
+	<   // Less then
+	>   // More then
+	<=  // less then or equal to
+	>=  // More then or equal to
+	=   // equal to
+	==  // exact equal to (for statments not variables)
+	**  // to the power of
