@@ -201,6 +201,6 @@ OPERATORS
     -   // Subtraction
     *   // Multiplication
     /   // Division (float/double)
-//  // Integer division
+    //  // Integer division
     ++  // Increment by 1
     --  // Decrement by 1
