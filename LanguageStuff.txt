@@ -41,6 +41,16 @@ Example:
 	}
 
 
+WINDOWS INERGRATION
+-------------------
+CommandPMT cmd = new CommandPMT(requireAdmin: <bool>);
+cmd.Exectue(command: <string>, parameters: <List<string>>);
+cmd.Exit();
+cmd.HideWindow();
+cmd.ShowWindow();
+cmd.ChangePath(newPath: <string>);
+cmd.StartProccess(proccessNameOrPath: <string>);
+
 LANGUAGE CONFIG FILE
 --------------------
 This is a file read on start and set up common stuff that the language can use either dont add stuff to it or keep it blank it wont be read 
