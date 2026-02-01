@@ -2,258 +2,326 @@
    MyLanguage Reference
 ==========================
 
-this language is an interpreted language 
+OSharp is a C#-style interpreted programming language focused on
+clarity, system access, threading, and Windows integration.
 
+--------------------------------------------------
 FUNCTIONS
----------
-Function prefix is the return type (or 'void' if it returns nothing).
+--------------------------------------------------
+
+Functions are declared with the return type as a prefix.
+Use `void` if the function does not return a value.
+
+Syntax:
+    <visibility> <returnType> FunctionName(parameterName: type, ...)
+    {
+        // function body
+    }
 
 Examples:
 
-    <visibility> <type> FunctionName(name: type, age: type)
+    public void PrintUser(name: string, age: int)
     {
         Console.Message(name + age);
     }
 
-    int FunctionName(age: type)
+    public int Increment(age: int)
     {
-        Console.Message(age.ToUsableString());
-        return age++;
+        Console.Message(age.ToString());
+        return age + 1;
     }
 
+--------------------------------------------------
+FILE IMPORTS
+--------------------------------------------------
 
-IMPORTING FILES
----------------
+Files are imported using the `use` keyword.
 
-use a file in the same director just by using the keyword
-	use <FileName>;
+Import a file from the current directory:
+    use FileName;
 
-or if its not inside the same directory 
-	use <Full Path To File>;
+Import a file using an absolute or relative path:
+    use "C:/Desktop/Files/MyFile";
 
-or inside a os.config file you can add the 
-	{
-		IncludeDirectory: "FilePath",
-	}
-Example:
-	{
-		IncludeDirectory: "C:\Desktop\Files\" // must add \ at the end or it will throw an error on start
-	}
+--------------------------------------------------
+INCLUDE DIRECTORIES
+--------------------------------------------------
 
+Global include directories can be defined in an `os.config` file.
+These directories are searched automatically when using `use`.
 
+Example `os.config` file:
+
+    {
+        IncludeDirectory: "C:/Desktop/Files/"
+    }
+
+Paths are normalized automatically by the runtime.
+
+--------------------------------------------------
 WINDOWS INTEGRATION
--------------------
-Windows.CommandSession cmd = new Windows.CommandSession(requireAdmin: true);
+--------------------------------------------------
 
-// Working directory control (session-scoped)
-cmd.SetWorkingDirectory("C:\\Windows");
+Windows-specific functionality is exposed through the `Windows` namespace.
+This API is only available on Windows hosts.
 
-// Execute a command inside the command session
-Windows.CommandResult result = cmd.Execute(
-    command: "dir",
-    parameters: new List<string> { "/w" }
-);
+Example usage:
 
-// Window visibility control (cmd window only)
-cmd.Window.Hide();
-cmd.Window.Show();
+    Windows.CommandSession cmd = new Windows.CommandSession(requireAdmin: true);
 
-// Start an external process (not inside cmd session)
-cmd.StartProcess("notepad.exe");
+    cmd.SetWorkingDirectory("C:/Windows");
 
-// Close the command session
-cmd.Exit();
+    Windows.CommandResult result = cmd.Execute(
+        command: "dir",
+        parameters: new List<string> { "/w" }
+    );
 
+    cmd.Window.Hide();
+    cmd.Window.Show();
+
+    cmd.StartProcess("notepad.exe");
+
+    cmd.Exit();
+
+--------------------------------------------------
 LANGUAGE CONFIG FILE
---------------------
-This is a file read on start and set up common stuff that the language can use either dont add stuff to it or keep it blank it wont be read 
+--------------------------------------------------
 
-to Force Read It On Start Add This One Line
+A configuration file may be read at startup to configure runtime behavior.
+If no configuration file is present, startup continues normally.
 
-	ConfigFile.ForceRead(<string> PathToFile); // keep blank it will look for it in the current directory
-	
-All Option For Config File
+The config file is loaded automatically if found in the current directory.
 
-	// still working on will update
-
+--------------------------------------------------
 VARIABLES
----------
-Declare variables with or without default values.
+--------------------------------------------------
+
+Variables may be declared with or without default values.
+
+Syntax:
 
     <visibility> <type> VariableName;
-        // Default initialized to type's empty value (0 for numbers, "" for strings)
+    <visibility> <type> VariableName = value;
 
-    <visibility> <type> VariableName = <default value>;
-        // Explicit default value
+Examples:
 
+    private int counter;
+    public string username = "Guest";
 
-FUNCTION VISIBILITY
--------------------
-    public    // Can be accessed from any class with an object reference
-    private   // Accessible only within the defining class
-    static    // Belongs to the class itself, no object needed
-    internal  // Accessible only to other internal classes
+Default values:
+    - Numbers default to 0
+    - Strings default to ""
+    - Objects default to null
 
+--------------------------------------------------
+VISIBILITY MODIFIERS
+--------------------------------------------------
 
-THREADS
--------
-Thread Types:
-    safe   // Can only access safe, managed memory
-    unsafe // Can access any memory used by the program (dangerous)
-    io     // For file I/O operations
-    net    // For networking operations
-    all    // Combines all thread types (not recommended unless necessary)
+    public    // Accessible from anywhere
+    private   // Accessible only within the defining scope
+    internal  // Accessible only within the current module
+    static    // Belongs to the type itself, not an instance
+
+--------------------------------------------------
+THREADING
+--------------------------------------------------
+
+Threads allow parallel execution of code.
+
+Thread types define what the thread is allowed to access:
+
+    safe     // Managed memory only
+    unsafe   // Full memory access (restricted / dangerous)
+    io       // File system operations
+    net      // Networking operations
+    all      // Combines all types (not recommended)
 
 Up to two thread types may be specified.
 
 Example:
 
-    // Creating a thread
-    <visibility> <threadType> <threadType> parallel myThread = new();
+    public safe io parallel myThread = new();
 
-    // Starting thread
     myThread.Start()
     {
-        // Code executed on this thread
+        Console.Message("Running in parallel");
     };
 
-    // Subscribing to thread events
-    myThread.OnStarted(-> FunctionThatSubscribes)   
-    myThread.OnEnded(-> FunctionThatSubscribes)     
-    myThread.OnDestroyed(-> FunctionThatSubscribes) 
-	
-	// Unsubscribing to thread events
-    myThread.OnStarted(<- FunctionThatSubscribes)   
-    myThread.OnEnded(<- FunctionThatSubscribes)     
-    myThread.OnDestroyed(<- FunctionThatSubscribes) 
+Thread events:
 
-    // Sending data back to main thread
-    myThread.SendMain(data);
+    myThread.OnStarted(-> OnThreadStarted);
+    myThread.OnEnded(-> OnThreadEnded);
+    myThread.OnDestroyed(-> OnThreadDestroyed);
 
-    // Pausing the thread
-    myThread.End();
+Unsubscribe from events:
 
-    // Destroying the thread (must recreate to reuse)
-    myThread.Destroy();
+    myThread.OnStarted(<- OnThreadStarted);
 
+Thread control:
 
+    myThread.SendMain(data);   // Send data to main thread
+    myThread.End();            // Stop execution
+    myThread.Destroy();        // Destroy thread (cannot be reused)
+
+--------------------------------------------------
 PREBUILT FUNCTIONS
-------------------
+--------------------------------------------------
 
-Console:
-    Console.Message(message);                 // Prints a message to console
-    Console.ReadConsoleInput();               // Returns last user input as string
-    Console.OpenFile(filePath);               // Opens file and returns file object
-    Console.CloseFile(closeAllFiles: bool);   // Closes last opened file (or all if true)
-	Console.SetWindowSize(<int> width, <height> height); // set the windows size
-	Console.SetCursorPosition(<int> x, <int> y); // sets the consoles cursor positionf 
+Console Functions:
 
-Type Functions:
-    <int/float/...>.ToUsableString();         // Converts number to usable string
-    <string/char>.ToUsableNum();              // Converts string/char to number
-    <list/array>.GetIndexOf(object);          // Finds index of first matching object
-    <list/array>.AddElement(object);          // Adds object to end of list/array
-    <list/array>.RemoveElement(object);       // Removes first matching objects
-	<list/array>.RemoveElementAll(object);    // Removes All Instances Of That Objects
+    Console.Message(text);
+    Console.ReadConsoleInput();
+    Console.SetWindowSize(width: int, height: int);
+    Console.SetCursorPosition(x: int, y: int);
 
-File Functions:
-    <OpenedFile>.Write(data);                 // Writes data to file
-    <OpenedFile>.Read();                      // Reads file as string
-    <OpenedFile>.Delete();                    // Deletes file safely
-    <OpenedFile>.ChangePath(newPath);         // Moves file to new location
-    <OpenedFile>.Tell();                      // Returns file path
-    <OpenedFile>.IsActive();                  // True if file is currently in use
-    <OpenedFile>.ReadLines();                 // Reads file as list of strings
-    <OpenedFile>.WriteLines(List<string>);    // Writes list of strings to file
-    <OpenedFile>.IsWritable();                // True if file is writable
-    <OpenedFile>.IsReadable();                // True if file is readable
+--------------------------------------------------
+TYPE FUNCTIONS
+--------------------------------------------------
 
-Networking Functions:
-    NetworkServer.SetNetworkType(type);       // Sets network type (UDP/TCP)
-    NetworkServer.Start(port: int);           // Starts server on given port
-    NetworkServer.Listen();                   // Listens for incoming data
-    NetworkServer.Send(ip: string, broadcast: bool); // Sends data, broadcasts if true
-	NetworkServer.DisconnectClient(ipOfClient);   // Disconnects specified client
-    NetworkServer.Shutdown();                 // Stops server & kicks all clients
-	
-    NetworkConnector.Connect(ip: string, port: int); // Connects to server (error if none)
-	NetworkConnector.OnShutdown(->ShutdownFunction); //
-    NetworkConnector.Receive();               // Receives data as byte array
-	
-    NetworkUtils.DecodeMessage(data <Array Of Bytes>);         // Decodes UTF-8 data to string
-    NetworkUtils.EncodeMessage(message);      // Encodes string to byte array
-	
-Https / Http Functions: // still bear bones still working on
-	HttpClient httpClient = new();
-	
-	byte[] response httpClient.Request(<string> Type, <string> URL, <Byte[]> data);
+Numeric and string utilities:
 
+    <number>.ToString();
+    <string>.ToInt();
+    <char>.ToInt();
 
+Collections:
+
+    <list/array>.GetIndexOf(object);
+    <list/array>.AddElement(object);
+    <list/array>.RemoveElement(object);
+    <list/array>.RemoveElementAll(object);
+
+--------------------------------------------------
+FILE FUNCTIONS
+--------------------------------------------------
+
+    file.Write(data);
+    file.Read();
+    file.ReadLines();
+    file.WriteLines(List<string>);
+    file.Delete();
+    file.ChangePath(newPath);
+    file.Tell();
+    file.IsActive();
+    file.IsReadable();
+    file.IsWritable();
+
+--------------------------------------------------
+NETWORKING
+--------------------------------------------------
+
+Server:
+
+    NetworkServer.SetNetworkType(type); // TCP or UDP
+    NetworkServer.Start(port: int);
+    NetworkServer.Listen();
+    NetworkServer.Send(ip: string, broadcast: bool);
+    NetworkServer.DisconnectClient(ip);
+    NetworkServer.Shutdown();
+
+Client:
+
+    NetworkConnector.Connect(ip: string, port: int);
+    NetworkConnector.Receive();
+    NetworkConnector.OnShutdown(-> Handler);
+
+Utilities:
+
+    NetworkUtils.EncodeMessage(string);
+    NetworkUtils.DecodeMessage(byte[]);
+
+--------------------------------------------------
+HTTP / HTTPS
+--------------------------------------------------
+
+Basic HTTP support:
+
+    HttpClient client = new();
+    byte[] response = client.Request(
+        type: string,
+        url: string,
+        data: byte[]
+    );
+
+--------------------------------------------------
 CORE CODE BLOCKS
-----------------
-
-Loops:
-    for (int index in <list/array>)
-    {
-        // Code using index
-    }
-
-    foreach (<type> item in <list/array>)
-    {
-        // Code using each element
-    }
+--------------------------------------------------
 
 Conditionals:
-    if (object <operator> object)
+
+    if (condition)
     {
-        // Runs if true
+        // code
     }
     else
     {
-        // Runs if false
+        // code
     }
 
-Try / Exception Handling:
+Loops:
+
+    for (int index in array)
+    {
+        // code
+    }
+
+    foreach (type item in array)
+    {
+        // code
+    }
+
+While loop:
+
+    while (condition)
+    {
+        // code
+    }
+
+Loop control:
+
+    continue; // Skip iteration
+    break;    // Exit loop
+
+--------------------------------------------------
+ERROR HANDLING
+--------------------------------------------------
+
     try
     {
-        // Code that might throw error
+        // code that may fail
     }
-    error(exception e)
+    error (exception e)
     {
         Console.Message(e.Message);
     }
     final
     {
-        // Always runs after try or error
+        // always runs
     }
 
-While Loops:
-    while (condition == <true / false>)
-    {
-        // Runs until condition is oposite to input or loop broken
-    }
-
-Breaking Loops:
-    for (int index in <list/array>)
-    {
-        if (index == 5) continue; // Skip iteration
-        if (index == 8) end;      // Exit loop
-    }
-
-
+--------------------------------------------------
 OPERATORS
----------
-    +   // Addition
-    -   // Subtraction
-    *   // Multiplication
-    /   // Division (float/double)
-    //  // Integer division
-    ++  // Increment by 1
-    --  // Decrement by 1
-	<   // Less then
-	>   // More then
-	<=  // less then or equal to
-	>=  // More then or equal to
-	=   // equal to
-	==  // exact equal to (for statments not variables)
-	**  // to the power of
+--------------------------------------------------
+
+    +   Addition
+    -   Subtraction
+    *   Multiplication
+    /   Division
+    //  Integer division
+    **  Power
+
+    ++  Increment
+    --  Decrement
+
+    ==  Equality
+    !=  Not equal
+    <   Less than
+    >   Greater than
+    <=  Less than or equal
+    >=  Greater than or equal
+
+    =   Assignment
+
+--------------------------------------------------
+END OF REFERENCE
+--------------------------------------------------
