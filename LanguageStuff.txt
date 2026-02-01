@@ -41,15 +41,28 @@ Example:
 	}
 
 
-WINDOWS INERGRATION
+WINDOWS INTEGRATION
 -------------------
-CommandPMT cmd = new CommandPMT(requireAdmin: <bool>);
-cmd.Exectue(command: <string>, parameters: <List<string>>);
+Windows.CommandSession cmd = new Windows.CommandSession(requireAdmin: true);
+
+// Working directory control (session-scoped)
+cmd.SetWorkingDirectory("C:\\Windows");
+
+// Execute a command inside the command session
+Windows.CommandResult result = cmd.Execute(
+    command: "dir",
+    parameters: new List<string> { "/w" }
+);
+
+// Window visibility control (cmd window only)
+cmd.Window.Hide();
+cmd.Window.Show();
+
+// Start an external process (not inside cmd session)
+cmd.StartProcess("notepad.exe");
+
+// Close the command session
 cmd.Exit();
-cmd.HideWindow();
-cmd.ShowWindow();
-cmd.ChangePath(newPath: <string>);
-cmd.StartProccess(proccessNameOrPath: <string>);
 
 LANGUAGE CONFIG FILE
 --------------------
